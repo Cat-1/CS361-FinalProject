@@ -1,0 +1,5 @@
+input:
+  path: .\input_list.csv
+  numNouns: 10
+output:
+  path: .\wordlist.txt
