@@ -112,3 +112,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+MySqlConnector/Config.yaml
+MySqlConnector/Config.yaml
