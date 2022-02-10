@@ -1,5 +1,5 @@
 input:
-  path: .\input_list.csv
-  numNouns: 10
+  path: ./input_list.csv
+  numNouns: 100
 output:
-  path: .\wordlist.txt
+  path: ./wordlist.txt
