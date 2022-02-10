@@ -41,7 +41,12 @@ def index():
         db.execute(body["Query"])
     rows = db.fetchall()
     columnHeaders = db.column_names
-    return JsonifyMySql(columnHeaders, rows)
+
+    if "ReturnType" in body and body["ReturnType"].upper() == "JSON":
+        return JsonifyMySql(columnHeaders, rows)
+    else:
+        result = {"Headers": columnHeaders, "Data": rows}
+        return result
 
 try:
     app.run()
