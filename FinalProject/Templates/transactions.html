@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="../static/styles.css"/>
+    <script src="../static/generic.js"></script>
+  </head>
+  <body>
+    <!-- Side navigation -->
+  <div class="sidenav">
+    <div class="sidenav__div">
+      <span >Budget</span>
+      <table class="table__links">
+        <tr>
+          <td><a href="budget.html" class="sidenav__link">My Budget</a></td>
+          </tr>
+          </table>
+    </div>
+    <div class="sidenav__div">
+      <span >Accounts <a data-bs-toggle="modal" href="#modal-new-account" role="button" href="#"><i class="sidenav__icon bi bi-plus-circle" ></i></a> <a data-bs-toggle="modal" href="#modal-edit-accounts" role="button"href="#"><i class="sidenav__icon bi bi-pencil" ></i></a></span>
+        <table class="table__links">
+        <tr>
+          <td><a href="transactions.html" class="sidenav__link">Checking</a>
+            </td>
+            </tr>
+            <tr><td>  <a href="#" class="sidenav__link">Savings</a><td></tr>
+            <tr><td><a href="#" class="sidenav__link">Visa</a></td></tr>
+      <tr><td><a href="#" class="sidenav__link">All Accounts</a></td></tr>
+      </table>
+
+
+    </div>
+    <div class="sidenav__div">
+        <span >Reports</span>
+        <table class="table__links">
+          <tr>
+            <td><a href="#" class="sidenav__link">Reports</a></td>
+          </tr>
+        </table>
+    </div>
+
+
+
+  </div>
+
+  <!-- Page content -->
+  <div class="container main">
+    <div class="main__header row">
+      <div class="col col-lg-2"><i class="bi bi-arrow-left"></i>February<i class="bi bi-arrow-right"></i></div>
+      <div class="col"><h1>Checking</h1></div>
+      <div class="col col-lg-2">
+        <i class="bi bi-patch-question-fill"></i>
+      </div>
+    </div>
+    <div class="main__body row">
+      <table class="table__transactions" name="table__main">
+        <tr id="first-row">
+          <th>Date</th>
+          <th>Payee</th>
+          <th>Bucket</th>
+          <th>Notes</th>
+          <th>Inflow<a href="#" class="tooltip-test main__link__icon" title="Amount of money that you have received."><i class="bi bi-patch-question-fill"></i></a></th>
+          <th>Outflow <a href="#" class="tooltip-test main__link__icon" title="Amount of money that you have spent."><i class="bi bi-patch-question-fill"></i></a></th>
+          <th>Cleared<a href="#" class="tooltip-test main__link__icon" title="When selected, indicates that the transaction has been completed."><i class="bi bi-patch-question-fill"></i></a></th>
+          <th>Running Total</th>
+        </tr>
+        <tr>
+          <form>
+          <td>
+            <input type="date" name="date">
+            </td>
+            <td>
+              <input type="text" name="payee">
+              </td>
+              <td>
+                <select name="bucket-name" id="bucket-name">
+                  <option value="null" selected></option>
+                  <option value=unbucketed>Unbucketed</option>
+                <option value="Bucket-1">Bucket 1</option>
+                <option value="Bucket-2">Bucket 2</option>
+                </select>
+                </td>
+                <td>
+                  <input type="text" name="notes">
+                </td>
+                <td>
+                  <input type="number" class="input__money"  min="0" step=".01" name="inflow">
+                  </td>
+                  <td>
+                    <input type="number" class="input__money" min="0" step=".01" name="Outflow">
+                  </td>
+                  <td>
+                    <input type="checkbox" name="cleared">
+                  </td>
+                    <td>
+                      <button type="button" name="button">Submit</button>
+                      <button type="button" name="button">Clear Input</button>
+                    </td>
+                    </form>
+            </tr>
+            <tr name="table__normal__row">
+              <td>2022-02-12</td>
+              <td>John Doe</td>
+              <td>Bucket 1</td>
+              <td>This is a pending transaction.</td>
+              <td></td>
+              <td>$10.00</td>
+              <td>
+                <form>
+                <input type="checkbox" name="cleared">
+                </form>
+              </td>
+              <td>$100.00</td>
+              <td><i class="edit__delete__icon bi bi-trash3-fill"></i></td>
+            </tr>
+            <tr name="table__normal__row">
+              <td>2022-02-01</td>
+              <td>Starting Balance</td>
+              <td>Unbucketed</td>
+              <td>Existing balance</td>
+              <td>$110.00</td>
+              <td></td>
+              <td>
+                <form>
+                <input type="checkbox" name="cleared" checked>
+                </form>
+              </td>
+              <td>$110.00</td>
+              <td><i class="edit__delete__icon bi bi-trash3-fill"></i></td>
+            </tr>
+      </table>
+      </div>
+      <div id="div-edit-area"></div>
+
+
+
+<div class="modal fade" id="modal-new-account" tabindex="-1" aria-labelledby="new-account-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="new-account-label">Create a New Account</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+        <table>
+          <tr>
+            <td><label for="new-account-type">Account Type:</label></td>
+            <td><select name="new-account-type" id="new-account-type">
+            <option value="NULL" selected></option>
+            <option value="Checking">Checking</option>
+            <option value="Saving">Saving</option>
+            <option value="Credit Card">Credit Card</option>
+          </select></td>
+          </tr>
+          <tr>
+          <td><label for="new-account-name">Account Name:</label></td>
+          <td><input type="text" name="new-account-name" value=""></td>
+          </tr>
+          </table>
+          </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<div class="modal fade" id="modal-edit-accounts" tabindex="-1" aria-labelledby="edit-account-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="edit-account-label">Edit Existing Accounts</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+        <table>
+          <tr>
+            <th>Account Type</th>
+            <th>Account Name</th>
+          </tr>
+          <tr>
+            <td><select name="edit-account-type" id="edit-account-type">
+            <option value="Checking" selected>Checking</option>
+            <option value="Saving">Saving</option>
+            <option value="Credit Card">Credit Card</option>
+          </select></td>
+          <td><input type="text" name="edit-account-name" value="Checking"></td>
+          </tr>
+          <tr>
+            <td><select name="edit-account-type" id="edit-account-type2">
+            <option value="Checking" >Checking</option>
+            <option value="Saving" selected>Saving</option>
+            <option value="Credit Card">Credit Card</option>
+          </select></td>
+          <td><input type="text" name="edit-account-name" value="Savings"></td>
+          </tr>
+          <tr>
+            <td><select name="edit-account-type" id="edit-account-type2">
+            <option value="Checking" >Checking</option>
+            <option value="Saving" >Saving</option>
+            <option value="Credit Card" selected>Credit Card</option>
+          </select></td>
+          <td><input type="text" name="edit-account-name" value="Visa"></td>
+          </tr>
+          </table>
+          </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+  </body>
+</html>
