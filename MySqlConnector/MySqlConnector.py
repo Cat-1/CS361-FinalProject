@@ -33,12 +33,20 @@ def JsonifyMySql(columns, data):
 @app.route('/', methods=['POST'])
 def index():
     body = request.get_json()
+    print(request.data)
+    print(body)
+
     db = conn.cursor()
-    param = body["Parameters"]
-    if body["Parameters"]:
+
+    if 'Parameters' in body:
+        param = body["Parameters"]
         db.execute(body["Query"], param)
+        if ("INSERT" in body["Query"]):
+            conn.commit()
     else:
         db.execute(body["Query"])
+        if("INSERT" in body["Query"]):
+            conn.commit()
     rows = db.fetchall()
     columnHeaders = db.column_names
 

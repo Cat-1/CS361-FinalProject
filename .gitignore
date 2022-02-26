@@ -114,3 +114,9 @@ dmypy.json
 .pyre/
 MySqlConnector/Config.yaml
 MySqlConnector/Config.yaml
+*.yaml
+FinalProject/static/editPencil.png
+FinalProject/static/questionMark.png
+FinalProject/static/SequenceDiagramText.txt
+FinalProject/Templates/test2.html
+FinalProject/test.html

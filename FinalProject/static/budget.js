@@ -5,6 +5,21 @@ newBucketModal.addEventListener('show.bs.modal', function(event){
   var categoryId = button.getAttribute('data-bs-modal-id');
 
   var modalBodyInput = newBucketModal.querySelector('.modal-body select');
-  modalBodyInput.value = "Category-" + categoryId;
+  modalBodyInput.value = categoryId;
   console.log(modalBodyInput.select);
+});
+
+var formNewBucket = document.getElementById("form-new-bucket");
+formNewBucket.addEventListener('submit', async function(event){
+  event.preventDefault();
+  console.log("pony");
+  let response = await fetch('buckets/',{
+    method: 'POST',
+    body: new FormData(formNewBucket)
+  });
+
+  let result = await response.json();
+
+
+  console.log(result);
 });

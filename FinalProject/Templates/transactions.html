@@ -1,51 +1,5 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-    <link rel="stylesheet" href="../static/styles.css"/>
-    <script src="../static/generic.js"></script>
-  </head>
-  <body>
-    <!-- Side navigation -->
-  <div class="sidenav">
-    <div class="sidenav__div">
-      <span >Budget</span>
-      <table class="table__links">
-        <tr>
-          <td><a href="budget.html" class="sidenav__link">My Budget</a></td>
-          </tr>
-          </table>
-    </div>
-    <div class="sidenav__div">
-      <span >Accounts <a data-bs-toggle="modal" href="#modal-new-account" role="button" href="#"><i class="sidenav__icon bi bi-plus-circle" ></i></a> <a data-bs-toggle="modal" href="#modal-edit-accounts" role="button"href="#"><i class="sidenav__icon bi bi-pencil" ></i></a></span>
-        <table class="table__links">
-        <tr>
-          <td><a href="transactions.html" class="sidenav__link">Checking</a>
-            </td>
-            </tr>
-            <tr><td>  <a href="#" class="sidenav__link">Savings</a><td></tr>
-            <tr><td><a href="#" class="sidenav__link">Visa</a></td></tr>
-      <tr><td><a href="#" class="sidenav__link">All Accounts</a></td></tr>
-      </table>
-
-
-    </div>
-    <div class="sidenav__div">
-        <span >Reports</span>
-        <table class="table__links">
-          <tr>
-            <td><a href="#" class="sidenav__link">Reports</a></td>
-          </tr>
-        </table>
-    </div>
-
-
-
-  </div>
-
-  <!-- Page content -->
-  <div class="container main">
+{% extends 'base.html' %}
+{% block content %}
     <div class="main__header row">
       <div class="col col-lg-2"><i class="bi bi-arrow-left"></i>February<i class="bi bi-arrow-right"></i></div>
       <div class="col"><h1>Checking</h1></div>
@@ -65,20 +19,19 @@
           <th>Cleared<a href="#" class="tooltip-test main__link__icon" title="When selected, indicates that the transaction has been completed."><i class="bi bi-patch-question-fill"></i></a></th>
           <th>Running Total</th>
         </tr>
+        <form method="post">
         <tr>
-          <form>
           <td>
-            <input type="date" name="date">
+            <input type="date" name="transaction-date">
             </td>
             <td>
               <input type="text" name="payee">
               </td>
               <td>
-                <select name="bucket-name" id="bucket-name">
-                  <option value="null" selected></option>
-                  <option value=unbucketed>Unbucketed</option>
-                <option value="Bucket-1">Bucket 1</option>
-                <option value="Bucket-2">Bucket 2</option>
+                <select name="bucket-id" id="bucket-input">
+                  {% for bucket in buckets %}
+                  <option value={{bucket.bucketId}}>{{bucket.name}}</option>
+                  {% endfor %}
                 </select>
                 </td>
                 <td>
@@ -94,11 +47,11 @@
                     <input type="checkbox" name="cleared">
                   </td>
                     <td>
-                      <button type="button" name="button">Submit</button>
-                      <button type="button" name="button">Clear Input</button>
+                      <input type="submit" value="Submit">
                     </td>
-                    </form>
             </tr>
+          </form>
+
             <tr name="table__normal__row">
               <td>2022-02-12</td>
               <td>John Doe</td>
@@ -217,7 +170,4 @@
     </div>
   </div>
 </div></div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-
-  </body>
-</html>
+  {% endblock %}
