@@ -33,7 +33,6 @@ def JsonifyMySql(columns, data):
 @app.route('/', methods=['POST'])
 def index():
     body = request.get_json()
-    print(request.data)
     print(body)
 
     db = conn.cursor()

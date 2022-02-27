@@ -26,3 +26,4 @@ with open(config["input"]["path"],"r") as f:
         for i in range(0,numWords):
             word = get_random_word(array, len(array))
             outfile.write(word)
+

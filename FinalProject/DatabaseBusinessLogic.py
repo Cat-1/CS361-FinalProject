@@ -17,11 +17,12 @@ class DatabaseBusinessLogic(object):
 
     def GetCategoriesAndBuckets(self):
         body = {"Query": """
-       select buckets.categoryId, categories.name as categoryName, buckets.bucketId, buckets.name as bucketName, buckets.assigned, balance from buckets
-join categories on buckets.categoryId = categories.categoryId
-WHERE buckets.categoryId is not NULL
+       select categories.categoryId, categories.name as categoryName, buckets.bucketId, buckets.name as bucketName, buckets.assigned, balance from categories
+left join buckets on categories.categoryId = buckets.categoryId
 order by buckets.categoryId, buckets.name;"""
                }
+#        where categories.name != "unbucketed"
+
         return self.MakeRequest(body)
 
     def GetBuckets(self, includeUnbucketed = False):
@@ -42,8 +43,8 @@ order by buckets.categoryId, buckets.name;"""
     def CreateTransaction(self, bucketId, accountId, payee, total, transactionType, transactionDate, notes="", cleared=False):
 
         payeeId = self.GetPayeeId(payee)
-        body = {"Query": "INSERT INTO transactions (accountId, payeeId, total, transactionType, transactionDate, notes, cleared) VALUES(%s,%s,%s,%s,%s,%s,%s)",
-                "Parameters": [accountId, payeeId, total, transactionType, transactionDate, notes, cleared]
+        body = {"Query": "INSERT INTO transactions (accountId, payeeId, transactionType, transactionDate, notes, cleared) VALUES(%s,%s,%s,%s,%s,%s)",
+                "Parameters": [accountId, payeeId, transactionType, transactionDate, notes, cleared]
                 }
         self.MakeRequest(body)
 
@@ -51,8 +52,8 @@ order by buckets.categoryId, buckets.name;"""
 
         transactionInfo = self.MakeRequest(body)[0]
 
-        body = {"Query": """INSERT INTO transactions_buckets (transactionId, bucketId, amount, transactionType)
-        VALUES (%s, %s, %s, %s""", "Parameters": [transactionInfo["transactionId"], bucketId, total, transactionType]};
+        body = {"Query": """INSERT INTO transactions_buckets (transactionId, bucketId, amount)
+        VALUES (%s, %s, %s)""", "Parameters": [transactionInfo["transactionId"], bucketId, total]};
 
         self.MakeRequest(body)
 
@@ -69,6 +70,8 @@ order by buckets.categoryId, buckets.name;"""
 
         if(len(payeeResponse) == 0):
             body = {"Query": "INSERT INTO payees (name) VALUES(%s)", "Parameters": parameters}
+            self.MakeRequest(body)
+            body = {"Query": "SELECT payeeId from payees ORDER BY payeeId desc LIMIT 1"}
             payeeResponse = self.MakeRequest(body)
 
         return payeeResponse[0]["payeeId"]
@@ -81,3 +84,22 @@ order by buckets.categoryId, buckets.name;"""
         stream = open("Config.yaml")
         config = yaml.load(stream, loader)
         self.mysqlUrl = config["MySqlUrl"]
+
+    def GetTransactions(self, accountId):
+        query = """select transactions.transactionId, DATE_FORMAT(transactionDate, "%m/%d/%y") as transactionDate, payees.name as payee, buckets.name as bucket, notes, amount, transactionType, cleared from transactions
+join transactions_buckets on transactions.transactionId = transactions_buckets.transactionId
+join buckets on transactions_buckets.bucketId = buckets.bucketId
+join payees on transactions.payeeId = payees.payeeId
+where accountId = %s
+ORDER BY transactionDate desc,
+transactionType desc,
+amount desc"""
+
+        body = {"Query": query, "Parameters": [accountId]}
+        response = self.MakeRequest(body)
+
+        for row in response:
+            transactionType = row["transactionType"]
+            row[transactionType] = "$" + str(row["amount"])
+
+        return response

@@ -12,14 +12,9 @@ newBucketModal.addEventListener('show.bs.modal', function(event){
 var formNewBucket = document.getElementById("form-new-bucket");
 formNewBucket.addEventListener('submit', async function(event){
   event.preventDefault();
-  console.log("pony");
   let response = await fetch('buckets/',{
     method: 'POST',
     body: new FormData(formNewBucket)
-  });
-
-  let result = await response.json();
-
-
-  console.log(result);
+  })
+    .then(result => window.location.reload());
 });
