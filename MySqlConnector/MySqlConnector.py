@@ -44,7 +44,8 @@ def index():
             conn.commit()
     else:
         db.execute(body["Query"])
-        if("INSERT" in body["Query"]):
+        # You need to commit inserts and delete in MySQL
+        if("INSERT" in body["Query"] or "DELETE" in body["Query"]):
             conn.commit()
     rows = db.fetchall()
     columnHeaders = db.column_names

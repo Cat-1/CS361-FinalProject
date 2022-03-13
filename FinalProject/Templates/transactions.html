@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
     <div class="main__header row">
-      <div class="col col-lg-2"><i class="bi bi-arrow-left"></i>February<i class="bi bi-arrow-right"></i></div>
-      <div class="col"><h1>Checking</h1></div>
+      <div class="col"><h1>{{account.accountName}}</h1></div>
       <div class="col col-lg-2">
         <i class="bi bi-patch-question-fill"></i>
       </div>
@@ -19,7 +18,7 @@
           <th>Cleared<a href="#" class="tooltip-test main__link__icon" title="When selected, indicates that the transaction has been completed."><i class="bi bi-patch-question-fill"></i></a></th>
           <th>Running Total</th>
         </tr>
-        <form method="post">
+        <form method="post" action=/transactions/{{account.accountId}}>
         <tr>
           <td>
             <input type="date" name="transaction-date">
@@ -61,12 +60,10 @@
               <td>{{row.inflow}}</td>
               <td>{{row.outflow}}</td>
               <td>
-                <form method="post">
-                <input type="checkbox" name="cleared" value="{{row.transactionId}}" {% if row.cleared == 1 %}checked{% endif %}>
-                </form>
+                <input type="checkbox" {% if row.cleared == 1 %}checked{% endif %} onClick="ToggleCleared({{row.transactionId}}, {{row.cleared}}, {{account.accountId}})">
               </td>
               <td>{{row.runningTotal}}</td>
-              <td><a href="#" value={{row.transactionId}}><i class="edit__delete__icon bi bi-trash3-fill"></i></a></td>
+              <td><button onclick="DeleteTransaction({{row.transactionId}}, {{account.accountId}})"><i class="edit__delete__icon bi bi-trash3-fill"></i></button></td>
             </tr>
             {% endfor %}
       </table>
@@ -74,87 +71,5 @@
       <div id="div-edit-area"></div>
 
 
-
-<div class="modal fade" id="modal-new-account" tabindex="-1" aria-labelledby="new-account-label" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="new-account-label">Create a New Account</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form>
-        <table>
-          <tr>
-            <td><label for="new-account-type">Account Type:</label></td>
-            <td><select name="new-account-type" id="new-account-type">
-            <option value="NULL" selected></option>
-            <option value="Checking">Checking</option>
-            <option value="Saving">Saving</option>
-            <option value="Credit Card">Credit Card</option>
-          </select></td>
-          </tr>
-          <tr>
-          <td><label for="new-account-name">Account Name:</label></td>
-          <td><input type="text" name="new-account-name" value=""></td>
-          </tr>
-          </table>
-          </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save</button>
-      </div>
-    </div>
-  </div>
-</div></div>
-
-<div class="modal fade" id="modal-edit-accounts" tabindex="-1" aria-labelledby="edit-account-label" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="edit-account-label">Edit Existing Accounts</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form>
-        <table>
-          <tr>
-            <th>Account Type</th>
-            <th>Account Name</th>
-          </tr>
-          <tr>
-            <td><select name="edit-account-type" id="edit-account-type">
-            <option value="Checking" selected>Checking</option>
-            <option value="Saving">Saving</option>
-            <option value="Credit Card">Credit Card</option>
-          </select></td>
-          <td><input type="text" name="edit-account-name" value="Checking"></td>
-          </tr>
-          <tr>
-            <td><select name="edit-account-type" id="edit-account-type2">
-            <option value="Checking" >Checking</option>
-            <option value="Saving" selected>Saving</option>
-            <option value="Credit Card">Credit Card</option>
-          </select></td>
-          <td><input type="text" name="edit-account-name" value="Savings"></td>
-          </tr>
-          <tr>
-            <td><select name="edit-account-type" id="edit-account-type2">
-            <option value="Checking" >Checking</option>
-            <option value="Saving" >Saving</option>
-            <option value="Credit Card" selected>Credit Card</option>
-          </select></td>
-          <td><input type="text" name="edit-account-name" value="Visa"></td>
-          </tr>
-          </table>
-          </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save</button>
-      </div>
-    </div>
-  </div>
-</div></div>
   {% endblock %}
+{% block customScript %}<script src="../static/transactions.js"></script>{% endblock %}

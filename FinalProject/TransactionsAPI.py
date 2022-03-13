@@ -1,6 +1,5 @@
 import time
-
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, jsonify
 from DatabaseBusinessLogic import DatabaseBusinessLogic
 import os
 from os.path import exists
@@ -20,6 +19,16 @@ businessLogic = DatabaseBusinessLogic()
 def index(accountId):
     return BuildTransactionTemplate(accountId)
 
+@transactions_api.route("/<transactionId>", methods=['DELETE'])
+def DeleteTransaction(transactionId):
+    businessLogic.DeleteTransaction(transactionId)
+    return "deleted " + transactionId
+
+@transactions_api.route("/<transactionId>", methods=['PUT'])
+def UpdateCleared(transactionId):
+    data = request.get_json()
+    businessLogic.UpdateClearedTransactionStatus(transactionId, data["Cleared"])
+    return "updated " + transactionId
 
 # CreateTransaction(self, bucketId, accountId, payee, total, transactionType, transactionDate, notes="", cleared=False):
 @transactions_api.route("/<accountId>", methods=['POST'])
@@ -43,10 +52,12 @@ def CreateTransaction(accountId):
 
 def BuildTransactionTemplate(accountId):
     accounts = businessLogic.GetAccounts()
+    account = businessLogic.GetAccount(accountId)[0]
     buckets = businessLogic.GetBuckets(True)
     transactions = businessLogic.GetTransactions(accountId)
     GetRunningTotal(transactions)
-    return render_template("transactions.html", accounts=accounts, buckets=buckets, transactions=transactions)
+
+    return render_template("transactions.html", accounts=accounts, buckets=buckets, account=account, transactions=transactions)
 
 
 def WriteSums(transactions):

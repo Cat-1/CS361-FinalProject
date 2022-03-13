@@ -12,9 +12,19 @@ newBucketModal.addEventListener('show.bs.modal', function(event){
 var formNewBucket = document.getElementById("form-new-bucket");
 formNewBucket.addEventListener('submit', async function(event){
   event.preventDefault();
-  let response = await fetch('buckets/',{
+  let response = await fetch('/buckets',{
     method: 'POST',
     body: new FormData(formNewBucket)
+  })
+    .then(result => window.location.reload());
+});
+
+var formNewCategory = document.getElementById("form-new-category");
+formNewBucket.addEventListener('submit', async function(event){
+  event.preventDefault();
+  let response = await fetch('/categories',{
+    method: 'POST',
+    body: new FormData(formNewCategory)
   })
     .then(result => window.location.reload());
 });
