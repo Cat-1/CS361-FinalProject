@@ -7,7 +7,6 @@ businessLogic = DatabaseBusinessLogic()
 
 @accounts_api.route("", methods=['POST'])
 def CreateAccount():
-    print("pony")
     data = request.form
     businessLogic.CreateAccount(data["new-account-type"], data["new-account-name"])
-    return data
+    return jsonify("Success"), 200

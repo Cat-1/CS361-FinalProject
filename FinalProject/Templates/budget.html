@@ -1,124 +1,162 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div class="main__header row">
-      <div class="col col-lg-2"></div>
-      <div class="col"><h1>My Budget</h1></div>
-      <div class="col col-lg-2">
-        <a href="#modal-help" class="main__link__icon" role="button"  data-bs-toggle="modal"><i class="bi bi-patch-question-fill"></i></a>
-        <i class="bi bi-pencil-fill"></i>
-      </div>
-
-    </div>
-    <div class="main__subheader row">
-      <div class="col">Unbucketed:  ${{unbucketedBalance}} <a href="#" class="tooltip-test main__link__icon" title="Money that has not been yet been added to your budget."><i class="bi bi-patch-question-fill"></i></a></div>
-    </div>
-    <div class="main__body">
-      <table class="table__budget">
-        <tr>
-          <th>Categories <a class="main__link__icon" data-bs-toggle="modal" href="#modal-new-category" role="button"><i class="bi bi-plus-circle-fill"></i></a></th>
-          <th>Assigned <a class="tooltip-test main__link__icon" title="Money allocated for a particular bucket." href="#"><i class="bi bi-patch-question-fill"></i></a></th>
-          <th>Available <a class="tooltip-test main__link__icon" title="Money available in this bucket to spend." href="#"><i class="bi bi-patch-question-fill"></i></a></th>
-        </tr>
-        {% for index in categoriesAndBuckets %}
-        <tr>
-          <td class="table__category"> {{categoriesAndBuckets[index].category.name}} <a class="main__link__icon" data-bs-toggle="modal" href="#modal-new-bucket" role="button" href="#" data-bs-modal-id="{{categoriesAndBuckets[index].category.id}}"><i class="bi bi-plus-circle-fill"></i></a></td>
-          <td></td>
-          <td></td>
-        </tr>
-
-        {% for bucket in categoriesAndBuckets[index].buckets %}
-        <tr>
-          <td class="table__bucket" id="{{bucket.id}}">{{bucket.name}}</td>
-          <td>{{bucket.assigned}}</td>
-            <td>{{bucket.balance}}</td>
-          </tr>
-        {% endfor %}
-        {% endfor %}
-
-
-      </table>
-      </div>
-
-
-      <div class="modal fade" id="modal-new-bucket" tabindex="-1" aria-labelledby="new-bucket-label" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="new-bucket-label">Create a New Bucket</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <div class="modal-body">
-              <form id="form-new-bucket">
-              <table>
-                <tr>
-                  <td><label for="category-select">Category:</label></td>
-                  <td><select name="category-select" id="category-select">
-                    {% for index in categoriesAndBuckets %}
-                  <option value="{{categoriesAndBuckets[index].category.id}}" id="new-bucket-category" >{{categoriesAndBuckets[index].category.name}}</option>
-                  {% endfor %}
-                </select></td>
-                </tr>
-                <tr>
-                <td><label for="new-bucket-name">Bucket Name:</label></td>
-                <td><input type="text" id="new-bucket-name" name="new-bucket-name" value=""></td>
-                </tr>
-                </table>
-                </form>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button submit" form="form-new-bucket" value="Submit" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
-            </div>
-          </div>
-        </div>
-      </div></div>
-      <div class="modal fade" id="modal-new-category" tabindex="-1" aria-labelledby="new-category-label" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="new-category-label">Create a New Category</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <form id="form-new-category">
-              <table>
-                <tr>
-                <td><label for="new-bucket-name">Category Name:</label></td>
-                <td><input type="text" name="new-category-name" value=""></td>
-                </tr>
-                </table>
-                </form>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" form="form-new-category" value="Submit" class="btn btn-primary">Save</button>
-            </div>
-          </div>
-        </div>
-      </div></div>
-      <div class="modal fade" id="modal-help" tabindex="-1" aria-labelledby="help-label" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="help-label">How does a budget work?</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <ol>
-              <li>Record the money that comes into your account (inflows) and leaves your account (outflows) on the transaction page.</li>
-              <li>When money flows into your account, it will be assigned to the "unbucketed" category. On the budget page, assign it to a bucket.
-                The amount of money available in each bucket is your budget for that particular area of your budget.</li>
-                <li>When money flows out of your account, assign it to a particular bucket so that the available pool of cash for that bucket is updated.</li>
-              </ol>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Save</button>
-            </div>
-          </div>
-        </div>
-      </div></div>
+<div class="main__header row">
+  <div class="col col-lg-2"></div>
+  <div class="col"><h1>My Budget</h1></div>
+  <div class="col col-lg-2">
+    <a href="#modal-help" class="main__link__icon" role="button"  data-bs-toggle="modal"><i class="bi bi-patch-question-fill"></i></a>
+    <i class="bi bi-pencil-fill"></i>
   </div>
-  {% endblock %}
+</div>
+
+<div class="main__subheader row">
+  <div class="row justify-content-center">
+    <div class="col>">Unbucketed:  ${{unbucketedBalance}} <a href="#" class="tooltip-test main__link__icon" title="Money that has not been yet been added to your budget."><i class="bi bi-patch-question-fill"></i></a></div>
+  </div>
+  <div class="row justify-content-center">
+    <div class="col"><a href="#modal-assign-money" class="main__link__icon" role="button"  data-bs-toggle="modal"><button class="btn btn-primary">Assign Money</button></a>
+  </div>
+</div>
+
+<div class="main__body">
+  <table class="table__budget">
+    <tr>
+      <th>Categories <a class="main__link__icon" data-bs-toggle="modal" href="#modal-new-category" role="button"><i class="bi bi-plus-circle-fill"></i></a></th>
+      <th>Assigned <a class="tooltip-test main__link__icon" title="Money allocated for a particular bucket." href="#"><i class="bi bi-patch-question-fill"></i></a></th>
+      <th>Available <a class="tooltip-test main__link__icon" title="Money available in this bucket to spend." href="#"><i class="bi bi-patch-question-fill"></i></a></th>
+    </tr>
+    {% for index in categoriesAndBuckets %}
+    <tr>
+      <td class="table__category"> {{categoriesAndBuckets[index].category.name}} <a class="main__link__icon" data-bs-toggle="modal" href="#modal-new-bucket" role="button" href="#" data-bs-modal-id="{{categoriesAndBuckets[index].category.id}}"><i class="bi bi-plus-circle-fill"></i></a></td>
+      <td></td>
+      <td></td>
+    </tr>
+    {% for bucket in categoriesAndBuckets[index].buckets %}
+    <tr>
+      <td class="table__bucket" id="{{bucket.id}}">{{bucket.name}}</td>
+      <td>{{bucket.assigned}}</td>
+      <td>{{bucket.balance}}</td>
+    </tr>
+    {% endfor %}
+    {% endfor %}
+  </table>
+</div>
+<!-- new bucket -->
+<div class="modal fade" id="modal-new-bucket" tabindex="-1" aria-labelledby="new-bucket-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="new-bucket-label">Create a New Bucket</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="form-new-bucket">
+          <table>
+            <tr>
+              <td><label for="category-select">Category:</label></td>
+              <td><select name="category-select" id="category-select">
+                {% for index in categoriesAndBuckets %}
+                <option value="{{categoriesAndBuckets[index].category.id}}" id="new-bucket-category" >{{categoriesAndBuckets[index].category.name}}</option>
+                {% endfor %}
+               </select></td>
+             </tr>
+             <tr>
+               <td><label for="new-bucket-name">Bucket Name:</label></td>
+               <td><input type="text" id="new-bucket-name" name="new-bucket-name" value=""></td>
+             </tr>
+           </table>
+         </form>
+       </div>
+       <div class="modal-footer">
+         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+         <button type="button submit" form="form-new-bucket" value="Submit" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
+       </div>
+     </div>
+   </div>
+ </div>
+
+<!-- new category -->
+<div class="modal fade" id="modal-new-category" tabindex="-1" aria-labelledby="new-category-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="new-category-label">Create a New Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="form-new-category">
+          <table>
+            <tr>
+              <td><label for="new-category-name">Category Name:</label></td>
+              <td><input type="text" name="new-category-name" value=""></td>
+            </tr>
+          </table>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button submit" form="form-new-category" class="btn btn-primary">Save</button>
+     </div>
+   </div>
+ </div>
+</div>
+
+<div class="modal fade" id="modal-help" tabindex="-1" aria-labelledby="help-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="help-label">How does a budget work?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <ol>
+        <li>Record the money that comes into your account (inflows) and leaves your account (outflows) on the transaction page.</li>
+        <li>When money flows into your account, it will be assigned to the "unbucketed" category. On the budget page, assign it to a bucket.
+          The amount of money available in each bucket is your budget for that particular area of your budget.</li>
+          <li>When money flows out of your account, assign it to a particular bucket so that the available pool of cash for that bucket is updated.</li>
+        </ol>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal-assign-money" tabindex="-1" aria-labelledby="assign-money-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="assign-money-label">Assign Money - Unbucketed: ${{unbucketedBalance}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="form-assign-money" method="post">
+          <table>
+            {% for index in categoriesAndBuckets %}
+            <tr>
+              <td class="table__category"> {{categoriesAndBuckets[index].category.name}}</td>
+              <td></td>
+              <td></td>
+            </tr>
+            {% for bucket in categoriesAndBuckets[index].buckets %}
+            <tr>
+              <td class="table__bucket">{{bucket.name}}</td>
+              <td><input type="number" class="input__money" min="0" step=".01" name="{{bucket.id}}" value="{{bucket.assigned}}"></input></td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+          </table>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button submit" form="form-assign-money" class="btn btn-primary">Save</button>
+     </div>
+   </div>
+ </div>
+</div>
+
+{% endblock %}
 {% block customScript %}<script src="../static/budget.js"></script>{% endblock %}

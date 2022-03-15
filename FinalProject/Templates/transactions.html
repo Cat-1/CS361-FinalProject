@@ -18,8 +18,8 @@
           <th>Cleared<a href="#" class="tooltip-test main__link__icon" title="When selected, indicates that the transaction has been completed."><i class="bi bi-patch-question-fill"></i></a></th>
           <th>Running Total</th>
         </tr>
-        <form method="post" action=/transactions/{{account.accountId}}>
         <tr>
+          <form id="form-new-transaction">
           <td>
             <input type="date" name="transaction-date">
             </td>
@@ -45,11 +45,11 @@
                   <td>
                     <input type="checkbox" name="cleared">
                   </td>
-                    <td>
-                      <input type="submit" value="Submit">
-                    </td>
+                </form>
+                <td>
+                  <button type="button" onclick=NewTransaction({{account.accountId}})>Submit</button>
+                </td>
             </tr>
-          </form>
 
             {% for row in transactions %}
             <tr name="table__normal__row">
@@ -63,13 +63,30 @@
                 <input type="checkbox" {% if row.cleared == 1 %}checked{% endif %} onClick="ToggleCleared({{row.transactionId}}, {{row.cleared}}, {{account.accountId}})">
               </td>
               <td>{{row.runningTotal}}</td>
-              <td><button onclick="DeleteTransaction({{row.transactionId}}, {{account.accountId}})"><i class="edit__delete__icon bi bi-trash3-fill"></i></button></td>
+              <td><a data-bs-toggle="modal" href="#modal-delete-confirmation" role="button" href="#" data-bs-modal-id="{{row.transactionId}}" data-bs-modal-account="{{account.accountId}}"><i class="edit__delete__icon bi bi-trash3-fill"></i></a></td>
             </tr>
             {% endfor %}
       </table>
       </div>
       <div id="div-edit-area"></div>
 
+      <div class="modal fade" id="modal-delete-confirmation" tabindex="-1" aria-labelledby="delete-confirmation-label" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="delete-confirmation-label">Are you sure?</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Are you sure you want to delete this transaction? It cannot be undone.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" name="button-delete">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
   {% endblock %}
 {% block customScript %}<script src="../static/transactions.js"></script>{% endblock %}

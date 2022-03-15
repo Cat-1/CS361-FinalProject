@@ -1,8 +1,3 @@
-/*function newAccount(){
-  var modal = document.getElementById('modal-new-account');
-  modal.toggle();
-}
-*/
 var formNewAccount = document.getElementById("form-new-account");
 formNewAccount.addEventListener('submit', async function(event){
   event.preventDefault();

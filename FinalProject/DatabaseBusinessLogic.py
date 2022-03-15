@@ -1,8 +1,8 @@
 import yaml
 import requests
 
+
 class DatabaseBusinessLogic(object):
-    mysqlUrl = ""
 
     def MakeRequest(self, body, json=True):
         if json:
@@ -12,6 +12,7 @@ class DatabaseBusinessLogic(object):
             return response.json()
         else:
             return []
+
 
     #####################################################
     #
@@ -26,24 +27,61 @@ class DatabaseBusinessLogic(object):
 
     def GetCategoriesAndBuckets(self):
         body = {"Query": """
-       select categories.categoryId, categories.name as categoryName, buckets.bucketId, buckets.name as bucketName, buckets.assigned, balance from categories
-left join buckets on categories.categoryId = buckets.categoryId
-order by buckets.categoryId, buckets.name;"""}
+        SELECT categories.categoryId, categories.name as categoryName, buckets.bucketId, 
+        buckets.name as bucketName, buckets.assigned, balance from categories
+        LEFT JOIN buckets ON categories.categoryId = buckets.categoryId
+        ORDER BY buckets.categoryId, buckets.name;"""}
         return self.MakeRequest(body)
 
     def GetBuckets(self):
-        body = {"Query": "SELECT bucketId, name from buckets ORDER BY name"}
+        body = {"Query": "SELECT * from buckets ORDER BY name"}
         return self.MakeRequest(body)
 
     def GetBucketByName(self, name):
         body = {"Query": "SELECT * from buckets WHERE name like %s LIMIT 1",
                 "Parameters": [name]}
-        return self.MakeRequest(body)
+        result = self.MakeRequest(body)
+        if len(result) > 0:
+            return result[0]
+        else:
+            return None
 
     def GetBucketById(self, bucketId):
         body = {"Query": "SELECT * from buckets WHERE bucketId = %s LIMIT 1",
                 "Parameters": [bucketId]}
+        return self.MakeRequest(body)[0]
+
+    def UpdateAssignedAmountsBucketList(self, bucketArray):
+        for bucketId in bucketArray.keys():
+            bucketInfo = self.GetBucketById(bucketId)
+            newAmount = float(bucketArray[bucketId])
+            oldAmount = float(bucketInfo["assigned"])
+            # only update what we need
+            if oldAmount != newAmount:
+                self.UpdateBucketAssignedAmount(bucketId, newAmount)
+
+    def UpdateBucketAssignedAmount(self, bucketId, newAmount):
+        body = {"Query": "UPDATE buckets SET assigned = %s WHERE bucketId = %s",
+                "Parameters": [newAmount, bucketId]}
+        self.MakeRequest(body)
+
+    def UpdateBucketBalance(self, bucketId, assignedAmount = None):
+        # This is a negative number
+        sumOfAllMoneySpent = self.GetTransactionSumForABucket(bucketId)
+        if assignedAmount is not None:
+            return float(assignedAmount) + sumOfAllMoneySpent
+
+
+    #####################################################
+    #
+    #       Categories Functions
+    #
+    #####################################################
+    def CreateCategory(self, categoryName):
+        body = {"Query": "INSERT INTO categories (name) VALUES (%s)",
+                "Parameters": [categoryName]}
         return self.MakeRequest(body)
+
 
     #####################################################
     #
@@ -54,7 +92,6 @@ order by buckets.categoryId, buckets.name;"""}
         body = {"Query": "SELECT accountTypeId from account_types WHERE accountTypeName = %s LIMIT 1",
                 "Parameters": [accountType]}
         result = self.MakeRequest(body)[0]
-
         body = {"Query": "INSERT INTO accounts (accountTypeId, accountName) VALUES (%s, %s)",
                 "Parameters": [result["accountTypeId"], accountName]}
         return self.MakeRequest(body)
@@ -78,44 +115,69 @@ order by buckets.categoryId, buckets.name;"""}
     #       Transaction Functions
     #
     #####################################################
-
-    # this may be a code smell, but having individual parameters means that the business logic can control the order of the parameters
-    # rather than just taking in a prepopulated array and assuming all parameters are included in the right order
-    # MySQL is VERY picky about parameters.
-    # You cannot call this function unless all the required parameters are passed in.
-    def CreateTransaction(self, bucketId, accountId, payee, total, transactionType, transactionDate, notes="", cleared=False):
+    def CreateTransaction(self, bucketId, accountId, payee, total,
+                          transactionType, transactionDate, notes="", cleared=False):
         payeeId = self.GetPayeeId(payee)
         body = {
-            "Query": "INSERT INTO transactions (accountId, payeeId, transactionType, transactionDate, notes, cleared) VALUES(%s,%s,%s,%s,%s,%s)",
+            "Query": """INSERT INTO transactions (accountId, payeeId, transactionType, 
+                     transactionDate, notes, cleared) 
+                     VALUES(%s,%s,%s,%s,%s,%s)""",
             "Parameters": [accountId, payeeId, transactionType, transactionDate, notes, cleared]
             }
         self.MakeRequest(body)
-
         transactionInfo = self.GetMostRecentTransaction()
 
         # Relationship table, so that in the future 1 transaction can deduct from many buckets. Not an option now.
-        body = {"Query": """INSERT INTO transactions_buckets (transactionId, bucketId, amount)
-        VALUES (%s, %s, %s)""", "Parameters": [transactionInfo["transactionId"], bucketId, total]};
-        self.MakeRequest(body)
+        body = {"Query": """
+        INSERT INTO transactions_buckets (transactionId, bucketId, amount)
+        VALUES (%s, %s, %s)""",
+                "Parameters": [transactionInfo["transactionId"], bucketId, total]};
+        return self.MakeRequest(body)
 
-    def GetTransactions(self, accountId):
-        query = """select transactions.transactionId, DATE_FORMAT(transactionDate, "%m/%d/%y") as transactionDate, payees.name as payee, buckets.name as bucket, notes, amount, transactionType, cleared from transactions
-    join transactions_buckets on transactions.transactionId = transactions_buckets.transactionId
-    join buckets on transactions_buckets.bucketId = buckets.bucketId
-    join payees on transactions.payeeId = payees.payeeId
-    where accountId = %s
-    ORDER BY transactionDate desc,
-    transactionType desc,
-    amount desc"""
+    def GetBaseTransactionQuery(self):
+        return """
+        SELECT transactions.transactionId, DATE_FORMAT(transactionDate, "%m/%d/%y") as transactionDate, 
+        payees.name as payee, buckets.name as bucket, notes, amount, transactionType, cleared from transactions
+        JOIN transactions_buckets ON transactions.transactionId = transactions_buckets.transactionId
+        JOIN buckets ON transactions_buckets.bucketId = buckets.bucketId
+        JOIN payees ON transactions.payeeId = payees.payeeId"""
 
-        body = {"Query": query, "Parameters": [accountId]}
-        response = self.MakeRequest(body)
-
-        for row in response:
-            transactionType = row["transactionType"]
-            row[transactionType] = "$" + str(row["amount"])
-
+    def GetTransactionsByBucketId(self, bucketId):
+        query = self.GetBaseTransactionQuery()
+        query += "WHERE buckets.bucketId = %s"
+        body = {"Query": query, "Parameters": [bucketId]}
+        response = self.MakeTransactionQuery(body)
         return response
+
+    def GetTransactionByTransactionId(self, transactionId):
+        query = self.GetBaseTransactionQuery()
+        query += " where transactionId = %s """
+        body = {"Query": query, "Parameters": [transactionId]}
+        response = self.MakeTransactionQuery(body)
+        return response[0]
+
+    def GetTransactionsByAccountId(self, accountId):
+        query = self.GetBaseTransactionQuery()
+        query += """
+            WHERE accountId = %s
+            ORDER BY transactionDate desc,
+            transactionType desc,
+            amount desc"""
+        body = {"Query": query, "Parameters": [accountId]}
+        response = self.MakeTransactionQuery(body)
+        return response
+
+    def MakeTransactionQuery(self, body):
+        response = self.MakeRequest(body)
+        response = self.ParseTransactionType(response)
+        return response
+
+    def ParseTransactionType(self, list):
+        for row in list:
+            transactionType = row["transactionType"]
+            # we now have a result.inflow = X or a result.outflow = x -- this makes it easier for building the html template
+            row[transactionType] = "$" + str(row["amount"])
+        return list
 
     def GetMostRecentTransaction(self):
         # Get the transaction with the largest transaction id -- this is the one that was just inserted
@@ -139,33 +201,39 @@ order by buckets.categoryId, buckets.name;"""}
     def DeleteTransaction(self, transactionId):
         body = {"Query": "DELETE FROM transactions where transactionId = %s",
                 "Parameters": [transactionId]}
-        self.MakeRequest(body)
+        return self.MakeRequest(body)
 
     def UpdateClearedTransactionStatus(self, transactionId, status):
         body = {"Query": "UPDATE transactions set cleared = %s WHERE transactionId = %s",
                 "Parameters": [status, transactionId]}
-        self.MakeRequest(body)
+        return self.MakeRequest(body)
 
-    def GetTransactionSum(self, bucketId):
+    def GetTransactionSumForABucket(self, key, searchValue):
         bucketList = self.GetAllTransactionSums()
-        bucket = self.FindBucket(bucketList, bucketId)
-        if bucket is not None:
-            return bucket["amount"]
+        bucket = self.FindBucket(bucketList, key, searchValue)
+        if bucket is None:
+            return 0
         else:
-            return None
+            return bucket["amount"]
 
-    def FindBucket(self, list, bucketId):
+    '''
+    ' Iterates over a list of items and returns the item that has a 
+    ' property (key) that matches the search value (value)
+    '''
+    def FindBucket(self, list, key, value):
         for item in list:
-            if item["bucketId"] == bucketId:
+            if item[key] == value:
                 return item
         return None
 
     def GetAllTransactionSums(self):
-        body = {"Query":
-                    """SELECT buckets.bucketId as bucketId, buckets.name as bucketName, sum(if(transactionType = 'inflow', amount, (-1 * amount))) amount FROM transactions
-    join transactions_buckets on transactions.transactionId = transactions_buckets.transactionId
-    join buckets on transactions_buckets.bucketId = buckets.bucketId
-    group by bucketId;"""}
+        body = {"Query": """
+                    SELECT buckets.bucketId as bucketId, buckets.name as bucketName, 
+                    SUM(IF(transactionType = 'inflow', amount, (-1 * amount))) amount 
+                    FROM transactions
+                    JOIN transactions_buckets ON transactions.transactionId = transactions_buckets.transactionId
+                    JOIN buckets ON transactions_buckets.bucketId = buckets.bucketId
+                    GROUP BY bucketId;"""}
         return self.MakeRequest(body)
 
     def __init__(self):
